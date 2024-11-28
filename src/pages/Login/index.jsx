@@ -1,30 +1,47 @@
-import * as Styled from "./style";
 import React, { useState } from "react";
-import H1 from "@/components/Common/Font/Heading/H1";
-import LoginForm from "@/components/Login/LoginForm/index.jsx";
+import * as Styled from "./style";
 import SelectRole from "@/components/Login/SelectRole/index.jsx";
+import LoginForm from "@/components/Login/LoginForm/index.jsx";
+import SignupForm from "@/components/Login/SignupForm/index.jsx";
+import {H1} from "@/components/Common/Font/Heading/H1/style.js";
+
 
 export default function Login() {
-    const [selectedRole, setSelectedRole] = useState("");
+    const [view, setView] = useState("selectRole"); // 현재 화면 상태: selectRole, login, signup
+    const [role, setRole] = useState(""); // 선택한 역할
+
+    const handleSelectRole = (selectedRole) => {
+        setRole(selectedRole);
+        setView("login");
+    };
 
     return (
         <Styled.LoginContainer>
             <Styled.WelcomeSection>
-                {selectedRole? (
-                    <H1 text={selectedRole} />
-                ) : (
-                    <H1 text='Airline' />
-                )
-                }
-                <H1 text='로그인 페이지 입니다' />
+                <H1>Airline</H1>
+                {view === "login" && <H1>{`${role} 로그인 화면입니다.`}</H1>}
+                {view === "signup" && <H1>회원가입 화면입니다.</H1>}
             </Styled.WelcomeSection>
-            {selectedRole ? (
-                <LoginForm role={selectedRole} onSelectRole={(role) => setSelectedRole(role)}/> // role 선택 시 LoginForm 렌더링
-            ) : (
-                <SelectRole onSelectRole={(role) => setSelectedRole(role)} /> // role 선택 화면 렌더링
+
+            {view === "selectRole" && (
+                <SelectRole
+                    onSelectRole={handleSelectRole}
+                />
             )}
 
+            {view === "login" && (
+                <LoginForm
+                    role={role}
+                    onSelectRole={() => setView("selectRole")}
+                    onSignup={() => setView("signup")}
+                />
+            )}
 
+            {view === "signup" && (
+                <SignupForm
+                    onBack={() => setView("login")}
+                />
+            )}
         </Styled.LoginContainer>
     );
 }

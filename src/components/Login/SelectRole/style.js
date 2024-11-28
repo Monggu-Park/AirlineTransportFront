@@ -8,6 +8,8 @@ export const RoleContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-color: ${theme.colorSystem.neutral["100"]};
+    
 `
 
 export const RoleButton = styled.button`
@@ -15,9 +17,9 @@ export const RoleButton = styled.button`
     height: 200px;
     margin: 20px;
     border: none;
-    border-radius: 5px;
-    background-color: #f0f0f0;
-    color: #000;
+    border-radius: 16px;
+    background-color: ${theme.colorSystem.neutral["300"]};
+    color: ${theme.colorSystem.black};
     font-size: 2.5rem;
     cursor: pointer;
     transition: background-color 0.3s;
