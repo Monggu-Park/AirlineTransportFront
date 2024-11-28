@@ -1,46 +1,21 @@
+import * as Styled from "./style";
 import React, { useState } from "react";
-import * as Styled from "./style.js"
+import H1 from "@/components/Common/Font/Heading/H1";
+import LoginForm from "@/components/Login/LoginForm/index.jsx";
+import SelectRole from "@/components/Login/SelectRole/index.jsx";
 
-const Login = () => {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!username || !password) {
-            setError("ID, PW를 모두 입력해주세요.");
-            return;
-        }
-
-        console.log("Logging in:", { username, password });
-        setError("");
-        alert("로그인 성공!");
-    };
+export default function Login() {
 
     return (
-        <Styled.Container>
-            <Styled.LoginBox>
-                <Styled.Title>Login</Styled.Title>
-                <Styled.Form onSubmit={handleSubmit}>
-                    {error && <Styled.Error>{error}</Styled.Error>}
-                    <Styled.Input
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                    <Styled.Input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <Styled.Button type="submit">Login</Styled.Button>
-                </Styled.Form>
-            </Styled.LoginBox>
-        </Styled.Container>
-    );
-};
+        <Styled.LoginContainer>
+            <Styled.WelcomeSection>
+                <H1 text='Airline' />
+                <H1 text='로그인 페이지 입니다' />
+            </Styled.WelcomeSection>
+            <SelectRole/>
+            {/*<LoginForm/>*/}
 
-export default Login;
+
+        </Styled.LoginContainer>
+    );
+}

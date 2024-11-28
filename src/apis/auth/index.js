@@ -1,5 +1,5 @@
-import authInstance from "@/apis/base/authInstance.ts";
-import publicInstance from "@/apis/base/publicInstance.ts";
+import authInstance from "@/apis/base/authInstance";
+import publicInstance from "@/apis/base/publicInstance";
 
 /**
  * @description 1-1. 일반 로그인
