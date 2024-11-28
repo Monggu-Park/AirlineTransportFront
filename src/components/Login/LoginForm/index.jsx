@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import * as Styled from "./style.js";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
 
-export default function LoginForm() {
+export default function LoginForm({role, onSelectRole}) {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -12,9 +12,14 @@ export default function LoginForm() {
 
     const isFormValid = username !== "" && password !== "";
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        alert(`${role} 사용자로 로그인 완료`);
+    };
+
     return (
         <Styled.LoginSection>
-            <Styled.Form onSubmit={() => alert("submit")}>
+            <Styled.Form onSubmit={handleSubmit}>
                 <Styled.InputGroup>
                     <Styled.InputGroupSection>
                         <H3 text='아이디'/>
@@ -49,6 +54,9 @@ export default function LoginForm() {
 
                 <Styled.SignInButton type='submit' disabled={!isFormValid}>
                     로그인
+                </Styled.SignInButton>
+                <Styled.SignInButton onClick={() => onSelectRole("")}>
+                    이전
                 </Styled.SignInButton>
             </Styled.Form>
         </Styled.LoginSection>
