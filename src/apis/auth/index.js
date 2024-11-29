@@ -57,6 +57,22 @@ export const registerAirlineEmployee = async (data) => {
 }
 
 /**
+ * @description 항공사 회원가입
+ */
+export const postRegisterAirline = async (data) => {
+    const response = await authInstance.post("/airline/employee/register", data);
+    return response.data;
+}
+
+/**
+ * @description 세관 회원가입
+ */
+export const postRegisterCustoms = async (data) => {
+    const response = await authInstance.post("/customs/employee/register", data);
+    return response.data;
+}
+
+/**
  * @description 1-2. 로그아웃
  */
 export const logout = async () => {
