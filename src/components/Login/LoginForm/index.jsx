@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import * as Styled from "./style";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
+import {loginSender} from "@/apis/auth/index.js";
 
 export default function LoginForm({ role, onSelectRole, onSignup }) {
     const [username, setUsername] = useState("");
@@ -11,7 +12,18 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert(`${role} 사용자로 로그인 완료`);
+        const data = {
+            "customId": username
+        }
+        loginSender(data).then((response) => {
+            const responseData = response.data;
+            localStorage.setItem("sender", JSON.stringify(responseData));
+            alert(`로그인 완료`);
+        }).catch((e) => {
+            alert('로그인 실패');
+            console.error(e);
+        })
+
     };
 
     return (
