@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import * as Styled from "../LoginForm/style.js";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
 import {postRegisterCustoms} from "@/apis/auth/index.js";
+import {getAllCustoms} from "@/apis/customs/index.js";
 
 export default function CustomsSignupForm({ onBack }) {
     const [id, setId] = useState("");
     const [name, setName] = useState("");
-    const exCustomId = "fafe6cc3-645d-4e36-b448-45189a046bdf"; // 예시로 고정된 customsId 값을 사용
-    const [customsId, setCustomsId] = useState(exCustomId)
-    const isFormValid = id && name && customId;
+    const [customsList, setCustomsList] = useState([]); // 예시로 고정된 customsId 값을 사용
+    const [customsId, setCustomsId] = useState("")
+    const isFormValid = id && name && customsId;
+
+    useEffect(() => {
+        getAllCustoms().then((data) => {
+            localStorage.setItem("customsList", JSON.stringify(data));
+            setCustomsList(data);
+        }).catch((error) => {
+            console.log(error);
+            const storedCustoms = localStorage.getItem("customsList");
+            if (storedCustoms) {
+                setCustomsList(JSON.parse(storedCustoms));
+            }
+        })
+    }, []);
+
+    const handleSelectChange = (e) => {
+        setCustomsId(e.target.value);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -61,15 +79,22 @@ export default function CustomsSignupForm({ onBack }) {
 
                 <Styled.InputGroup>
                     <Styled.InputGroupSection>
-                        <H3 text="세관 id" />
+                        <H3 text="세관 선택" />
                     </Styled.InputGroupSection>
-                    <Styled.Input
-                        type="text"
+                    <Styled.Select
                         value={customsId}
-                        onChange={(e) => setCustomsId(e.target.value)}
-                        placeholder="세관 id를 입력해주세요"
+                        onChange={handleSelectChange}
                         required
-                    />
+                    >
+                        <option value="" disabled>
+                            세관을 선택해주세요.
+                        </option>
+                        {customsList.map((customs) => (
+                            <option key={customs.id} value={customs.id}>
+                                {customs.region}
+                            </option>
+                        ))}
+                    </Styled.Select>
                 </Styled.InputGroup>
                 <Styled.SignInButton type="submit" disabled={!isFormValid}>
                     회원가입

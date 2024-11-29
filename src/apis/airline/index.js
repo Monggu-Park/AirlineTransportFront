@@ -6,7 +6,7 @@ export const getAllAwb = async () => {
 }
 
 export const getAllAirline = async () => {
-    const response = await publicInstance.get("/airline");
+    const response = await publicInstance.get("/airline/");
     return response.data;
 }
 

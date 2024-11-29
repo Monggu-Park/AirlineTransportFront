@@ -1,15 +1,35 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import * as Styled from "../LoginForm/style.js";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
 import {postRegisterAirline} from "@/apis/auth/index.js";
+import {getAllAirline} from "@/apis/airline/index.js";
+import {data} from "react-router-dom";
 
-export default function AirlineSignupForm({ role, onBack }) {
+export default function AirlineSignupForm({ onBack }) {
     const [id, setId] = useState("");
     const [name, setName] = useState("");
-    const exAirlineId = "1eb3cbbe-ebcc-4cad-9653-8c0d10d16e7d";  // 예시 airlineId
-    const [airlineId, setAirlineId] = useState(exAirlineId);
+    const [role, setRole] = useState("");
+    const [airlineList, setAirlineList] = useState([]);  // 예시 airlineId
+    const [airlineId, setAirlineId] = useState("");
 
     const isFormValid = id && name && location && airlineId;
+
+    useEffect(() => {
+        getAllAirline().then(data => {
+            localStorage.setItem("airlineList", JSON.stringify(data));
+            setAirlineList(data);
+        }).catch((error) => {
+            console.log(error);
+            const storedAirline = localStorage.getItem("airlineList");
+            if (storedAirline) {
+                setAirlineList(JSON.parse(storedAirline));
+            }
+        })
+    })
+
+    const handleSelectChange = (e) => {
+        setAirlineId(e.target.value);
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -64,15 +84,38 @@ export default function AirlineSignupForm({ role, onBack }) {
 
                 <Styled.InputGroup>
                     <Styled.InputGroupSection>
-                        <H3 text="항공사 id" />
+                        <H3 text="항공사 선택"/>
                     </Styled.InputGroupSection>
-                    <Styled.Input
-                        type="text"
+                    <Styled.Select
                         value={airlineId}
-                        onChange={(e) => setAirlineId(e.target.value)}
-                        placeholder="항공사 id를 입력해주세요"
+                        onChange={handleSelectChange}
                         required
-                    />
+                    >
+                        <option value="" disabled>
+                            항공사를 선택해주세요.
+                        </option>
+                        {airlineList.map((airline) => (
+                            <option key={airline.id} value={airline.id}>
+                                {airline.name}
+                            </option>
+                        ))}
+                    </Styled.Select>
+                </Styled.InputGroup>
+                <Styled.InputGroup>
+                    <Styled.InputGroupSection>
+                        <H3 text="역할 선택" />
+                    </Styled.InputGroupSection>
+                    <Styled.Select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        required
+                    >
+                        <option value="" disabled>
+                            역할을 선택해주세요.
+                        </option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="Captain">Captain</option>
+                    </Styled.Select>
                 </Styled.InputGroup>
                 <Styled.SignInButton type="submit" disabled={!isFormValid}>
                     회원가입

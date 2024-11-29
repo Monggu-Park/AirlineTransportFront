@@ -14,3 +14,8 @@ export const changeStatus = async (data) => {
     });
     return response.data;
 }
+
+export const getAllCustoms = async () => {
+    const response = await publicInstance.get("/customs/");
+    return response.data;
+}

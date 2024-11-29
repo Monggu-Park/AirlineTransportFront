@@ -35,6 +35,15 @@ export const Input = styled.input`
     border-radius: 4px;
 `;
 
+export const Select = styled.select`
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+`
+
 export const ShowPasswordBtn = styled.button`
     margin-top: 10px;
     cursor: pointer;
