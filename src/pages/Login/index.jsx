@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import * as Styled from "./style";
-import SelectRole from "@/components/Login/SelectRole/index.jsx";
-import LoginForm from "@/components/Login/LoginForm/index.jsx";
-import SignupForm from "@/components/Login/SignupForm/index.jsx";
+import SelectRole from "@/components/Login/SelectRole";
+import LoginForm from "@/components/Login/LoginForm";
+import SenderSignupForm from "@/components/Login/SenderSignupForm";
 import {H1} from "@/components/Common/Font/Heading/H1/style.js";
+import AirlineSignupForm from "@/components/Login/AirlineSignupForm";
+import CustomsSignupForm from "@/components/Login/CustomsSignupForm";
 
 
 export default function Login() {
@@ -20,7 +22,7 @@ export default function Login() {
             <Styled.WelcomeSection>
                 <H1>Airline</H1>
                 {view === "login" && <H1>{`${role} 로그인 화면입니다.`}</H1>}
-                {view === "signup" && <H1>회원가입 화면입니다.</H1>}
+                {view === "signup" && <H1>{role} 회원가입 화면입니다.</H1>}
             </Styled.WelcomeSection>
 
             {view === "selectRole" && (
@@ -38,9 +40,14 @@ export default function Login() {
             )}
 
             {view === "signup" && (
-                <SignupForm
-                    onBack={() => setView("login")}
-                />
+                // role에 따라 해당하는 회원가입 폼 컴포넌트로 이동
+                role === "화주" ? (
+                    <SenderSignupForm role={role} onBack={() => setView("login")} />
+                ) : role === "항공사" ? (
+                    <AirlineSignupForm role={role} onBack={() => setView("login")} />
+                ) : role === "세관" ? (
+                    <CustomsSignupForm role={role} onBack={() => setView("login")} />
+                ) : null
             )}
         </Styled.LoginContainer>
     );
