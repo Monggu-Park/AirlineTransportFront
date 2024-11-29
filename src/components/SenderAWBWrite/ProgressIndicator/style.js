@@ -2,8 +2,9 @@ import styled from "styled-components";
 
 export const ProgressContainer = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     margin-bottom: 20px;
+    gap: 20px;
 `;
 
 export const Step = styled.div`

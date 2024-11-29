@@ -1,61 +1,95 @@
-import React, {useState} from "react";
-import * as Styled from "./style.js"
+import React, { useState } from "react";
+import * as Styled from "./style.js";
 import Sidebar from "@/components/Sidebar/index.jsx";
 import ProgressIndicator from "@/components/SenderAWBWrite/ProgressIndicator";
 import ShipperInfoForm from "@/components/SenderAWBWrite/ShipperInfoForm";
 import AWBForm from "@/components/SenderAWBWrite/AWBForm";
-import ConsigneeInfoForm from "@/components/SenderAWBWrite/ConsigneeInfoForm";
-
+import CargoInfoForm from "@/components/SenderAWBWrite/CargoInfoForm";
 export default function SenderAWBWrite() {
-    const [activeStep, setActiveStep] = useState("Shipper's Information"); // 현재 활성화된 스텝
+    const [activeStep, setActiveStep] = useState("Shipper's Information");
+
+    const [formData, setFormData] = useState({
+        senderId: "",
+        description: "",
+        weight: 0,
+        width: 0,
+        height: 0,
+        receiverName: "",
+        receiverAddress: "",
+        receiverTel: "",
+    });
 
     const renderStepComponent = () => {
         switch (activeStep) {
             case "Shipper's Information":
-                return <ShipperInfoForm shipperInfo={shipperInfo} setShipperInfo={setShipperInfo} />;
-            case "Consignee's Information":
-                return <ConsigneeInfoForm consigneeInfo={consigneeInfo} setConsigneeInfo={setConsigneeInfo} />;
-            case "Shipping Information":
-                return <div>Shipping Information Component</div>; // 이후 추가할 컴포넌트
+                return (
+                    <ShipperInfoForm
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
+                );
             case "Cargo Information":
-                return <div>Cargo Information Component</div>; // 이후 추가할 컴포넌트
-            case "Other Information":
-                return <div>Other Information Component</div>; // 이후 추가할 컴포넌트
+                return (
+                    <CargoInfoForm
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
+                );
             default:
-                return <ShipperInfoForm />;
+                return null;
         }
     };
+    const handleSubmit = async () => {
+        const payload = {
+            senderId: formData.senderId,
+            cargo: {
+                description: formData.description,
+                weight: formData.weight,
+                width: formData.width,
+                height: formData.height,
+            },
+            receiverName: formData.receiverName,
+            receiverAddress: formData.receiverAddress,
+            receiverTel: formData.receiverTel,
+        };
 
-    const [shipperInfo, setShipperInfo] = useState({
-        firstName: "",
-        lastName: "",
-        address: "",
-        accountNumber: "",
-    });
-
-    const [consigneeInfo, setConsigneeInfo] = useState({
-        firstName: "",
-        lastName: "",
-        address: "",
-        accountNumber: "",
-        notifyParty: "",
-        accountingInfo: "",
-    });
+        console.log(payload);
+        //
+        // try {
+        //     const response = await fetch("https://example.com/api/awb", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify(payload),
+        //     });
+        //
+        //     if (response.ok) {
+        //         const data = await response.json();
+        //         alert("데이터 전송 성공: " + JSON.stringify(data));
+        //     } else {
+        //         alert("데이터 전송 실패: " + response.status);
+        //     }
+        // } catch (error) {
+        //     console.error("에러 발생:", error);
+        //     alert("서버와의 통신 중 오류가 발생했습니다.");
+        // }
+    };
 
     return (
         <div>
-            <Sidebar/>
+            <Sidebar />
             <Styled.PageContainer>
                 <Styled.ContentContainer>
                     <ProgressIndicator
                         currentStep={activeStep}
-                        onStepClick={(step) => setActiveStep(step)} // 클릭 시 스텝 변경
+                        onStepClick={(step) => setActiveStep(step)}
                     />
-                    {/* 현재 스텝에 맞는 컴포넌트 렌더링 */}
                     {renderStepComponent()}
-                    <AWBForm shipperInfo={shipperInfo} consigneeInfo={consigneeInfo}/>
+                    <AWBForm formData={formData} />
                 </Styled.ContentContainer>
+                <button onClick={handleSubmit}>sdasf9</button>
             </Styled.PageContainer>
         </div>
-    )
+    );
 }

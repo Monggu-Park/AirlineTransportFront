@@ -1,10 +1,9 @@
 import React from "react";
 import * as Styled from "./style";
-
-export default function ShipperInfoForm({ shipperInfo, setShipperInfo }) {
+export default function ShipperInfoForm({ formData, setFormData }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setShipperInfo((prev) => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
@@ -12,34 +11,37 @@ export default function ShipperInfoForm({ shipperInfo, setShipperInfo }) {
 
     return (
         <Styled.FormContainer>
-            <h2>Shipper's Information</h2>
+            <h2>Shipper's and Receiver's Information</h2>
+            {/* Sender Information */}
             <Styled.Input
                 type="text"
-                name="firstName"
-                value={shipperInfo.firstName}
+                name="senderId"
+                value={formData.senderId || ""}
                 onChange={handleChange}
-                placeholder="First Name"
+                placeholder="Sender ID"
+            />
+
+            {/* Receiver Information */}
+            <Styled.Input
+                type="text"
+                name="receiverName"
+                value={formData.receiverName || ""}
+                onChange={handleChange}
+                placeholder="Receiver Name"
             />
             <Styled.Input
                 type="text"
-                name="lastName"
-                value={shipperInfo.lastName}
+                name="receiverAddress"
+                value={formData.receiverAddress || ""}
                 onChange={handleChange}
-                placeholder="Last Name"
+                placeholder="Receiver Address"
             />
             <Styled.Input
-                type="text"
-                name="address"
-                value={shipperInfo.address}
+                type="tel"
+                name="receiverTel"
+                value={formData.receiverTel || ""}
                 onChange={handleChange}
-                placeholder="Address"
-            />
-            <Styled.Input
-                type="text"
-                name="accountNumber"
-                value={shipperInfo.accountNumber}
-                onChange={handleChange}
-                placeholder="Account Number"
+                placeholder="Receiver Telephone"
             />
         </Styled.FormContainer>
     );

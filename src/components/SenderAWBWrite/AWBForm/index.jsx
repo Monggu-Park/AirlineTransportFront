@@ -1,38 +1,39 @@
 import React from "react";
 import * as Styled from "./style";
 import airWayBill from "@/assets/images/AirWayBill.png"
-
-export default function AWBForm({ shipperInfo, consigneeInfo }) {
+export default function AWBForm({ formData }) {
     return (
         <Styled.AWBContainer>
             <Styled.AWBImage src={airWayBill} alt="AWB Document" />
 
             {/* Shipper's Information */}
             <Styled.InputOverlay style={{ top: "45px", left: "70px" }}>
-                {shipperInfo.firstName} {shipperInfo.lastName}
-            </Styled.InputOverlay>
-            <Styled.InputOverlay style={{ top: "70px", left: "70px" }}>
-                {shipperInfo.address}
-            </Styled.InputOverlay>
-            <Styled.InputOverlay style={{ top: "35px", left: "190px" }}>
-                {shipperInfo.accountNumber}
+                {formData.senderId ?? ""}
             </Styled.InputOverlay>
 
-            {/* Consignee's Information */}
-            <Styled.InputOverlay style={{ top: "200px", left: "100px" }}>
-                {consigneeInfo.firstName} {consigneeInfo.lastName}
+            {/* Receiver's Information */}
+            <Styled.InputOverlay style={{ top: "115px", left: "70px" }}>
+                {formData.receiverName ?? ""}
             </Styled.InputOverlay>
-            <Styled.InputOverlay style={{ top: "250px", left: "100px" }}>
-                {consigneeInfo.address}
+            <Styled.InputOverlay style={{ top: "140px", left: "70px" }}>
+                {formData.receiverAddress ?? ""}
             </Styled.InputOverlay>
-            <Styled.InputOverlay style={{ top: "300px", left: "100px" }}>
-                {consigneeInfo.accountNumber}
+            <Styled.InputOverlay style={{ top: "105px", left: "190px" }}>
+                {formData.receiverTel ?? ""}
             </Styled.InputOverlay>
-            <Styled.InputOverlay style={{ top: "350px", left: "100px" }}>
-                {consigneeInfo.notifyParty}
+
+            {/* Cargo Information */}
+            <Styled.InputOverlay style={{ top: "330px", left: "70px" }}>
+                {formData.description ?? ""}
             </Styled.InputOverlay>
-            <Styled.InputOverlay style={{ top: "400px", left: "100px" }}>
-                {consigneeInfo.accountingInfo}
+            <Styled.InputOverlay style={{ top: "390px", left: "95px" }}>
+                {formData.weight ?? 0}
+            </Styled.InputOverlay>
+            <Styled.InputOverlay style={{ top: "330px", left: "200px" }}>
+                {formData.width ?? 0}
+            </Styled.InputOverlay>
+            <Styled.InputOverlay style={{ top: "330px", left: "250px" }}>
+                {formData.height ?? 0}
             </Styled.InputOverlay>
         </Styled.AWBContainer>
     );
