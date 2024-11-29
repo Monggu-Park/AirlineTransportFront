@@ -16,6 +16,8 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
             "customId": username
         }
         loginSender(data).then((response) => {
+            const userInfo = JSON.parse(localStorage.getItem("sender"));
+            if (userInfo != null) {localStorage.clear();}
             const responseData = response.data;
             localStorage.setItem("sender", JSON.stringify(responseData));
             alert(`로그인 완료`);
