@@ -56,13 +56,8 @@ export const validateAuthCode = async (email, authenticationCode) => {
 /**
  * @description 2-3. 일반 회원가입
  */
-export const postRegister = async (data) => {
-    const response = await authInstance.post("/auth/sign-up", {
-        nickname: data.nickname,
-        password: data.password,
-        temporary_token: data.temporaryToken,
-    });
-
+export const postRegisterSender = async (data) => {
+    const response = await authInstance.post("/senders/register", data);
     return response.data;
 }
 

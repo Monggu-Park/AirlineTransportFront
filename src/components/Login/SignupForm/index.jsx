@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import * as Styled from "../LoginForm/style.js";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
+import {postRegisterSender} from "@/apis/auth/index.js";
 
 export default function SignupForm({ onBack }) {
     const [id, setId] = useState("");
@@ -12,7 +13,20 @@ export default function SignupForm({ onBack }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert(`회원가입 완료: ${name}`);
+        const data = {
+            "customId": id,
+            "name": name,
+            "address": location,
+            "phoneNumber": phone
+        };
+        postRegisterSender(data).then(() => {
+            alert(`회원가입 완료: ${name}`);
+            onBack();
+        }).catch((e) => {
+            alert(`회원가입 실패`);
+            console.error(e);
+        });
+
     };
 
     return (
