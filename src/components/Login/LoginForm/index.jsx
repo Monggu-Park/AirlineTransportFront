@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as Styled from "./style";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
 import {loginSender} from "@/apis/auth/index.js";
+import {useNavigate} from "react-router-dom";
 
 export default function LoginForm({ role, onSelectRole, onSignup }) {
     const [username, setUsername] = useState("");
@@ -9,6 +10,7 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
     const [showPassword, setShowPassword] = useState(false);
 
     const isFormValid = username !== "" && password !== "";
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -20,7 +22,8 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
             if (userInfo != null) {localStorage.clear();}
             const responseData = response.data;
             localStorage.setItem("sender", JSON.stringify(responseData));
-            alert(`로그인 완료`);
+            navigate("/senderAWB-write")
+            alert(`로그인 성공`);
         }).catch((e) => {
             alert('로그인 실패');
             console.error(e);

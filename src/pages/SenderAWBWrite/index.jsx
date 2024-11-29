@@ -6,6 +6,8 @@ import ShipperInfoForm from "@/components/SenderAWBWrite/ShipperInfoForm";
 import AWBForm from "@/components/SenderAWBWrite/AWBForm";
 import CargoInfoForm from "@/components/SenderAWBWrite/CargoInfoForm";
 import {SubmitButton} from "./style";
+import {createAWB} from "@/apis/sender/index.js";
+import {useNavigate} from "react-router-dom";
 export default function SenderAWBWrite() {
     const [activeStep, setActiveStep] = useState("Shipper's Information");
 
@@ -40,8 +42,12 @@ export default function SenderAWBWrite() {
                 return null;
         }
     };
-    const handleSubmit = async () => {
-        const payload = {
+    const navigate = useNavigate();
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const data = {
             senderId: formData.senderId,
             cargo: {
                 description: formData.description,
@@ -54,7 +60,14 @@ export default function SenderAWBWrite() {
             receiverTel: formData.receiverTel,
         };
 
-        console.log(payload);
+        createAWB(data).then((response) => {
+            localStorage.setItem("myAwb", JSON.stringify(response));
+            navigate("/home");
+            alert('등록완료');
+        }).catch((e) => {
+            console.error(e);
+        })
+
         //
         // try {
         //     const response = await fetch("https://example.com/api/awb", {

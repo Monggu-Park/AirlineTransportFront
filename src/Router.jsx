@@ -8,7 +8,7 @@ export default function Router() {
     return (
         <Routes>
             <Route path='/' element={<Login />} />
-            <Route path={'home'} element={<Home />} />
+            <Route path={'/home'} element={<Home />} />
             <Route path='/senderAWB-write' element={<SenderAWBWrite />} />
         </Routes>
     );
