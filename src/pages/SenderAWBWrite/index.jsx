@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import * as Styled from "./style.js";
+import * as Styled from "./style";
 import Sidebar from "@/components/Sidebar/index.jsx";
 import ProgressIndicator from "@/components/SenderAWBWrite/ProgressIndicator";
 import ShipperInfoForm from "@/components/SenderAWBWrite/ShipperInfoForm";
 import AWBForm from "@/components/SenderAWBWrite/AWBForm";
 import CargoInfoForm from "@/components/SenderAWBWrite/CargoInfoForm";
+import {SubmitButton} from "./style";
 export default function SenderAWBWrite() {
     const [activeStep, setActiveStep] = useState("Shipper's Information");
 
@@ -73,22 +74,39 @@ export default function SenderAWBWrite() {
         // } catch (error) {
         //     console.error("에러 발생:", error);
         //     alert("서버와의 통신 중 오류가 발생했습니다.");
-        // }
+        // }    return (
+        //         <div>
+        //             <Sidebar/>
+        //             <Styled.PageContainer>
+        //
+        //                 <Styled.ContentContainer>
+        //                     <ProgressIndicator
+        //                         currentStep={activeStep}
+        //                         onStepClick={(step) => setActiveStep(step)}
+        //                     />
+        //                     {renderStepComponent()}
+        //                     <AWBForm formData={formData}/>
+        //                     <Styled.SubmitButton onClick={handleSubmit}>sdasf9</Styled.SubmitButton>
+        //                 </Styled.ContentContainer>
+        //             </Styled.PageContainer>
+        //         </div>
+        //     );
     };
 
     return (
         <div>
-            <Sidebar />
+            <Sidebar/>
             <Styled.PageContainer>
+
                 <Styled.ContentContainer>
                     <ProgressIndicator
                         currentStep={activeStep}
                         onStepClick={(step) => setActiveStep(step)}
                     />
                     {renderStepComponent()}
-                    <AWBForm formData={formData} />
+                    <AWBForm formData={formData}/>
+                    <Styled.SubmitButton onClick={handleSubmit}>제출하기</Styled.SubmitButton>
                 </Styled.ContentContainer>
-                <button onClick={handleSubmit}>sdasf9</button>
             </Styled.PageContainer>
         </div>
     );
