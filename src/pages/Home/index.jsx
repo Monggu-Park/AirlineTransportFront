@@ -2,9 +2,10 @@ import * as Styled from "./style.js"
 import Sidebar from "@/components/Sidebar/index.jsx";
 import {useEffect, useState} from "react";
 import {getMyAwb} from "@/apis/sender/index.js";
-import {data, useNavigate} from "react-router-dom";
+import {data, useNavigate, useParams} from "react-router-dom";
 import {getAllAwb} from "@/apis/airline/index.js";
 import {getAllCargo} from "@/apis/customs/index.js";
+import { Link } from 'react-router-dom';
 
 export default function Home() {
     const [myAwb, setMyAwb] = useState([]);
@@ -14,77 +15,206 @@ export default function Home() {
 
     useEffect(() => {
         if (localStorage.getItem("sender")) {
-            getMyAwb().then((data) => {
-                if (Array.isArray(data) && data.length === 0) {
-                    setMyAwb([]);
-                } else {
-                    localStorage.setItem("myAwb", JSON.stringify(data));
-                    setMyAwb(data);
-                }
+            getMyAwb().then((response) => {
+                setMyAwb(response.data || []);
+                localStorage.setItem("myAwb", JSON.stringify(response.data));
             }).catch((e) => {
                 console.log(e);
             })
         } else if (localStorage.getItem("airlineEmployee")) {
             getAllAwb().then((data) => {
+                setAwbList(data || []);
                 localStorage.setItem("AllAwb", JSON.stringify(data));
-                setAwbList(data);
+            }).catch((e) => {
+                console.log(e);
             })
         } else if (localStorage.getItem("customsEmployee")) {
             getAllCargo().then((data) => {
+                setCargoList(data || []);
                 localStorage.setItem("AllCargo", JSON.stringify(data));
-                setCargoList(data);
+            }).catch((e) => {
+                console.log(e);
             })
         }
     }, []);
 
-    const handleAwbClick = (awbId) => {
-        navigate(`/awb/${awbId}`);
+    const MyAwbView = ({ myAwb }) => {
+        return (
+            <div>
+                <h1 style={{ margin: "10px 0" }}>My AWBs</h1>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                    <tr>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>ID</th>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>CargoStatus</th>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Approved</th>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {myAwb.map((awb) => (
+                        <tr key={awb.id}>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{awb.id}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{awb.cargo.status || "Unknown"}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{awb.isValid.toString() || "No Status"}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                                <button
+                                    style={{
+                                        padding: "5px 10px",
+                                        backgroundColor: "#007bff",
+                                        color: "#fff",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        borderRadius: "3px",
+                                    }}
+                                    onClick={() => navigate(`/awb/${awb.id}`)}
+                                >
+                                    보기
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+
+    const TabContent = ({items}) => {
+        return (
+            <div>
+                <table style={{width: "100%", borderCollapse: "collapse"}}>
+                    <thead>
+                    <tr>
+                        <th style={{border: "1px solid #ccc", padding: "10px", textAlign: "left"}}>ID</th>
+                        <th style={{border: "1px solid #ccc", padding: "10px", textAlign: "left"}}>Name</th>
+                        <th style={{border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Text</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {items.map((item) => (
+                        <tr key={item.id}>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                                <Link to={`/detail/${item.id}`}>{item.id}</Link>
+                            </td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{item.name}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{item.text}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
+
+    const TabView = ({ AwbList }) => {
+        const [activeTab, setActiveTab] = useState(0);
+
+        // 각 탭별 리스트 데이터
+        const tabs = [
+            {
+                id: 0,
+                label: 'Tab 1',
+                items: AwbList.map((awb) => ({
+                    id: awb.id,
+                    name: awb.sender.name || "Unknown",
+                    text: awb.isValid.toString() || "No status available",
+                })),
+            },
+            {
+                id: 1,
+                label: 'Tab 2',
+                items: [
+                    { id: 4, name: 'Diana', text: 'Welcome to Tab 2!' },
+                    { id: 4, name: 'Diana', text: 'Welcome to Tab 2!' },
+                    { id: 5, name: 'Eve', text: 'This is another example.' },
+                ],
+            },
+            {
+                id: 2,
+                label: 'Tab 3',
+                items: [
+                    { id: 4, name: 'Diana', text: 'Welcome to Tab 2!' },
+                    { id: 6, name: 'Frank', text: 'Tab 3 has more data!' },
+                    { id: 7, name: 'Grace', text: 'Let\'s add more content!' },
+                    { id: 8, name: 'Hank', text: 'React is fun!' },
+                    { id: 9, name: 'Ivy', text: 'Enjoy coding!' },
+                ],
+            },
+        ];
+
+        return (
+            <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+                <div style={{ display: "flex", cursor: "pointer", borderBottom: "2px solid #ccc", height: "50px" }}>
+                    {tabs.map((tab) => (
+                        <div
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            style={{
+                                flex: 1,
+                                padding: "10px",
+                                textAlign: "center",
+                                backgroundColor: activeTab === tab.id ? "#007bff" : "#f0f0f0",
+                                color: activeTab === tab.id ? "#fff" : "#000",
+                                borderBottom: activeTab === tab.id ? "2px solid #007bff" : "2px solid transparent",
+                            }}
+                        >
+                            {tab.label}
+                        </div>
+                    ))}
+                </div>
+                <div style={{ flex: 1, overflowY: "auto", padding: "20px", borderTop: "none" }}>
+                    <TabContent items={tabs[activeTab].items} />
+                </div>
+            </div>
+        );
+    };
+
+    const CargoView = ({ cargoList }) => {
+        return (
+            <div>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                    <tr>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>ID</th>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Description</th>
+                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {cargoList.map((cargo) => (
+                        <tr key={cargo.id}>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{cargo.id}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{cargo.description}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{cargo.status}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+        );
     };
 
     const renderContent = () => {
         if (localStorage.getItem("sender")) {
-            return (
-                <>
-                    <h1>My AWBs</h1>
-                    <Styled.AwbContainer>
-                        {(myAwb).map((awb) => (
-                            <Styled.AwbBox key={awb.id} onClick={() => handleAwbClick(awb.id)}>
-                                <h3>{awb.name}</h3>
-                                <p>ID: {awb.id}</p>
-                                <p>Status: {awb.status}</p>
-                            </Styled.AwbBox>
-                        ))}
-                    </Styled.AwbContainer>
-                </>
-            );
+            return <MyAwbView myAwb={myAwb} navigate={navigate} />;
         } else if (localStorage.getItem("airlineEmployee")) {
             return (
                 <>
-                    <h1>All AWBs</h1>
-                    <Styled.AwbContainer>
-                        {AwbList.map((awb) => (
-                            <Styled.AwbBox key={awb.id} onClick={() => handleAwbClick(awb.id)}>
-                                <h3>{awb.name}</h3>
-                                <p>ID: {awb.id}</p>
-                                <p>Status: {awb.status}</p>
-                            </Styled.AwbBox>
-                        ))}
-                    </Styled.AwbContainer>
+                    <h1 style={{
+                        margin: '10px 0',
+                    }}>All AWBs</h1>
+                    <TabView AwbList={AwbList}/>
                 </>
             );
         } else if (localStorage.getItem("customsEmployee")) {
             return (
                 <>
-                    <h1>All Cargo</h1>
-                    <Styled.AwbContainer>
-                        {cargoList.map((cargo) => (
-                            <Styled.AwbBox key={cargo.id}>
-                                <h3>{cargo.name}</h3>
-                                <p>ID: {cargo.id}</p>
-                                <p>Weight: {cargo.weight}</p>
-                            </Styled.AwbBox>
-                        ))}
-                    </Styled.AwbContainer>
+                    <h1 style={{
+                        margin: '10px 0',
+                    }}>All Cargo</h1>
+                    <CargoView cargoList={cargoList}/>
                 </>
             );
         } else {
@@ -103,3 +233,162 @@ export default function Home() {
         </div>
     );
 }
+
+const DetailView = () => {
+    const { id } = useParams(); // URL에서 ID를 가져옴
+    const [date, setDate] = useState('');
+    const [formData, setFormData] = useState({
+        name: 'Example Name',
+        text: 'Example Text for DetailView',
+    });
+
+    const handleDateChange = (e) => {
+        setDate(e.target.value);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log('Selected Date:', date);
+        // 날짜를 선택하고 제출하는 로직을 추가
+    };
+
+    return (
+        <div>
+            <Sidebar/>
+            <Styled.PageContainer>
+                <Styled.ContentContainer>
+                    <div style={{display: 'flex', padding: '20px', gap: '40px'}}>
+                        {/* 왼쪽: ID, Name, Text 가로로 나열 */}
+                        <div style={{flex: 1}}>
+                            <h2>Detail View for ID: {id}</h2>
+                            <div style={{marginBottom: '20px'}}>
+                                <div><strong>ID:</strong> {id}</div>
+                                <div><strong>Name:</strong> {formData.name}</div>
+                                <div><strong>Text:</strong> {formData.text}</div>
+                            </div>
+                        </div>
+
+                        {/* 오른쪽: 날짜 입력, 제출 버튼 및 테이블 */}
+                        <div style={{flex: 1}}>
+                            {/* 날짜 입력과 제출 버튼 */}
+                            <form onSubmit={handleSubmit} style={{marginBottom: '20px'}}>
+                                <label htmlFor="date">날짜 선택:</label>
+                                <input
+                                    type="date"
+                                    id="date"
+                                    value={date}
+                                    onChange={handleDateChange}
+                                    style={{marginLeft: '10px'}}
+                                />
+                                <button type="submit" style={{marginLeft: '10px', padding: '10px 20px'}}>
+                                    제출
+                                </button>
+                            </form>
+
+                            {/* 테이블: to, from, price */}
+                            <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                                <thead>
+                                <tr>
+                                    <th style={{padding: '8px', border: '1px solid #ddd'}}>To</th>
+                                    <th style={{padding: '8px', border: '1px solid #ddd'}}>From</th>
+                                    <th style={{padding: '8px', border: '1px solid #ddd'}}>Price</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>John Doe</td>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>Jane Smith</td>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>$100</td>
+                                </tr>
+                                <tr>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>Alice Brown</td>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>Bob White</td>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>$200</td>
+                                </tr>
+                                <tr>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>Charlie Black</td>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>David Green</td>
+                                    <td style={{padding: '8px', border: '1px solid #ddd'}}>$300</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </Styled.ContentContainer>
+            </Styled.PageContainer>
+        </div>
+    );
+};
+
+const ApprovalView = () => {
+    const {id} = useParams(); // URL에서 ID를 가져옴
+    const [approvalStatus, setApprovalStatus] = useState(null); // 승인 상태를 관리
+
+    // 승인 버튼 클릭 핸들러
+    const handleApprove = () => {
+        setApprovalStatus('승인');
+        console.log(`ID: ${id} is approved`); // 승인 시 처리할 로직
+    };
+
+    // 거절 버튼 클릭 핸들러
+    const handleReject = () => {
+        setApprovalStatus('거절');
+        console.log(`ID: ${id} is rejected`); // 거절 시 처리할 로직
+    };
+
+    return (
+        <div>
+            <Sidebar/>
+            <Styled.PageContainer>
+                <Styled.ContentContainer>
+                    <div style={{padding: '20px'}}>
+                        <h2>Approval View for ID: {id}</h2>
+
+                        {/* ID, Name, Text 세로로 나열 */}
+                        <div style={{marginBottom: '20px'}}>
+                            <div>
+                                <strong>ID:</strong> {id}
+                            </div>
+                            <div>
+                                <strong>Name:</strong> Example Name
+                            </div>
+                            <div>
+                                <strong>Text:</strong> Example Text for approval process
+                            </div>
+                        </div>
+
+                        {/* 승인/거절 버튼 */}
+                        <div style={{marginTop: '20px'}}>
+                            <button onClick={handleApprove} style={{
+                                marginRight: '10px',
+                                padding: '10px 20px',
+                                backgroundColor: 'green',
+                                color: 'white',
+                                border: 'none'
+                            }}>
+                                승인
+                            </button>
+                            <button onClick={handleReject} style={{
+                                padding: '10px 20px',
+                                backgroundColor: 'red',
+                                color: 'white',
+                                border: 'none'
+                            }}>
+                                거절
+                            </button>
+                        </div>
+
+                        {/* 승인 상태 */}
+                        {approvalStatus && (
+                            <div style={{marginTop: '20px', fontWeight: 'bold'}}>
+                                {`상태: ${approvalStatus}`}
+                            </div>
+                        )}
+                    </div>
+                </Styled.ContentContainer>
+            </Styled.PageContainer>
+        </div>
+    );
+};
+
+export {DetailView, ApprovalView};
