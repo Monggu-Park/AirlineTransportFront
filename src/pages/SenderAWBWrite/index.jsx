@@ -6,7 +6,6 @@ import ShipperInfoForm from "@/components/SenderAWBWrite/ShipperInfoForm";
 import AWBForm from "@/components/SenderAWBWrite/AWBForm";
 import CargoInfoForm from "@/components/SenderAWBWrite/CargoInfoForm";
 import {SubmitButton} from "./style";
-import {createAWB} from "@/apis/sender/index.js";
 import {useNavigate} from "react-router-dom";
 export default function SenderAWBWrite() {
     const [activeStep, setActiveStep] = useState("Shipper's Information");
@@ -60,8 +59,12 @@ export default function SenderAWBWrite() {
             receiverTel: formData.receiverTel,
         };
 
-        createAWB(data).then((response) => {
-            localStorage.setItem("myAwb", JSON.stringify(response));
+        createAWB(data).then(() => {
+            localStorage.removeItem("myAwb");
+            const getResponse = getMyAwb();
+            if (getResponse) {
+                localStorage.setItem("myAwb", JSON.stringify(getResponse));
+            }
             navigate("/home");
             alert('등록완료');
         }).catch((e) => {
