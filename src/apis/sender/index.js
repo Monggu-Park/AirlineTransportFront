@@ -4,7 +4,7 @@ export const getMyAwb = async () => {
     const storedData = localStorage.getItem("sender");
     if (storedData) {
         const parsedData = JSON.parse(storedData);
-        const customId = parsedData.sender?.customId;
+        const customId = parsedData.customId;
 
         return await publicInstance.get("/awb/custom", {
             params: {
