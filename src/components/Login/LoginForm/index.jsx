@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import * as Styled from "./style";
 import H3 from "@/components/Common/Font/Heading/H3/index.jsx";
-import {loginSender} from "@/apis/auth/index.js";
+import {loginAirlineEmployee, loginCustomsEmployee, loginSender} from "@/apis/auth/index.js";
 import {useNavigate} from "react-router-dom";
 
 export default function LoginForm({ role, onSelectRole, onSignup }) {
@@ -19,10 +19,7 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
         }
         if (role === "화주") {
             loginSender(data).then((response) => {
-                const userInfo = JSON.parse(localStorage.getItem("sender"));
-                if (userInfo != null) {
-                    localStorage.clear();
-                }
+                localStorage.clear();
                 const responseData = response.data;
                 localStorage.setItem("sender", JSON.stringify(responseData));
                 navigate("/senderAWB-write")
@@ -33,26 +30,33 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
             })
         } else if (role === "항공사") {
             loginAirlineEmployee(data).then((response) => {
-                const userInfo = JSON.parse(localStorage.getItem("airlineEmployee"));
-                if (userInfo != null) {
-                    localStorage.clear();
-                }
-                const responseData = response.data;
-                localStorage.setItem("airlineEmployee", JSON.stringify(responseData));
+                localStorage.clear();
+                // const responseData = response;
+                //
+                // console.log(responseData);
+                // const airlineEmployeeData = {
+                //     airline: {
+                //         id: responseData.airline.id,
+                //         name: responseData.airline.name,
+                //     },
+                //     customId: responseData.customId,
+                //     id: responseData.id,
+                //     name: responseData.name,
+                //     role: responseData.role,
+                // };
+                localStorage.setItem("airlineEmployee", JSON.stringify(response));
                 navigate("/senderAWB-write"); // 수정필요
                 alert('로그인 성공');
+
             }).catch((e) => {
                 alert('로그인 실패');
                 console.error(e);
             })
         } else if (role === "세관") {
             loginCustomsEmployee(data).then((response) => {
-                const userInfo = JSON.parse(localStorage.getItem("customsEmployee"));
-                if (userInfo != null) {
-                    localStorage.clear();
-                }
-                const responseData = response.data;
-                localStorage.setItem("customsEmployee", JSON.stringify(responseData));
+                localStorage.clear();
+                // const responseData = response.data;
+                localStorage.setItem("customsEmployee", JSON.stringify(response));
                 navigate("/senderAWB-write"); // 수정필요
                 alert('로그인 성공');
             }).catch((e) => {

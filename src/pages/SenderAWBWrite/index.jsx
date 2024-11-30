@@ -7,6 +7,7 @@ import AWBForm from "@/components/SenderAWBWrite/AWBForm";
 import CargoInfoForm from "@/components/SenderAWBWrite/CargoInfoForm";
 import {SubmitButton} from "./style";
 import {useNavigate} from "react-router-dom";
+import {createAWB, getMyAwb} from "@/apis/sender/index.js";
 export default function SenderAWBWrite() {
     const [activeStep, setActiveStep] = useState("Shipper's Information");
 

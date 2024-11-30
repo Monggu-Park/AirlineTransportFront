@@ -7,7 +7,7 @@ import {getAllCustoms} from "@/apis/customs/index.js";
 export default function CustomsSignupForm({ onBack }) {
     const [id, setId] = useState("");
     const [name, setName] = useState("");
-    const [customsList, setCustomsList] = useState([]); // 예시로 고정된 customsId 값을 사용
+    const [customsList, setCustomsList] = useState([]);
     const [customsId, setCustomsId] = useState("")
     const isFormValid = id && name && customsId;
 
