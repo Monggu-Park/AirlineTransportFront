@@ -343,6 +343,7 @@ export default function Home() {
                 <Styled.ContentContainer>
                     {renderContent()}
                     {/*<MyAwbView myAwb={mockMyAwb} navigate={navigate} />*/}
+                    {/*<DetailView/>*/}
                 </Styled.ContentContainer>
             </Styled.PageContainer>
         </div>
@@ -438,11 +439,13 @@ const DetailView = () => {
 const ApprovalView = () => {
     const {id} = useParams(); // URL에서 ID를 가져옴
     const [approvalStatus, setApprovalStatus] = useState(null); // 승인 상태를 관리
+    const navigate = useNavigate();
 
     // 승인 버튼 클릭 핸들러
     const handleApprove = () => {
         setApprovalStatus('승인');
         console.log(`ID: ${id} is approved`); // 승인 시 처리할 로직
+        navigate("/airline-schedule");
     };
 
     // 거절 버튼 클릭 핸들러
