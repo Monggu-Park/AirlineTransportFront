@@ -24,127 +24,6 @@ export default function Home() {
         setIsAWBModalOpen(true);
     };
 
-    /*
-    목데이터 사용
-     */
-    const mockMyAwb = [
-        {
-            id: "dbbce3fa-63db-4574-a124-4fd7d1f55bf1",
-            sender: {
-                id: "b0bdc624-1dad-4aaa-85fe-76c9bacc236f",
-                customId: "tomas",
-                name: "park",
-                address: "Incheon",
-                phoneNumber: "010-0000-0001",
-            },
-            cargo: {
-                id: "1faf2d3d-28d6-4879-b2c2-e7c8672d15ba",
-                description: "knife, gun",
-                status: "Waiting",
-                weight: 4.0,
-                width: 8.0,
-                height: 9.0,
-            },
-            schedule: null,
-            receiverName: "kiki",
-        },
-    ];
-
-    const mockAwbList = [
-        {
-            id: "dbbce3fa-63db-4574-a124-4fd7d1f55bf1",
-            sender: {
-                id: "b0bdc624-1dad-4aaa-85fe-76c9bacc236f",
-                customId: "tomas",
-                name: "park",
-                address: "Incheon",
-                phoneNumber: "010-0000-0001",
-            },
-            cargo: {
-                id: "1faf2d3d-28d6-4879-b2c2-e7c8672d15ba",
-                description: "knife, gun",
-                status: "Waiting",
-                weight: 4.0,
-                width: 8.0,
-                height: 9.0,
-            },
-            schedule: null,
-            receiverName: "kiki",
-        },
-        {
-            id: "703ba816-5a68-4819-9728-81711f7ae348",
-            sender: {
-                id: "1c22c345-91d5-4ddf-9372-51db8e0b9c10",
-                customId: "lee",
-                name: "john",
-                address: "Seoul",
-                phoneNumber: "010-1111-2222",
-            },
-            cargo: {
-                id: "2cfdc8ad-0f3f-41e7-a017-d2c6c920529b",
-                description: "electronics",
-                status: "Approved",
-                weight: 10.0,
-                width: 15.0,
-                height: 20.0,
-            },
-            schedule: "2023-12-01",
-            receiverName: "jane",
-        },
-    ];
-
-    const mockCargoList = [
-        {
-            id: "0a80f25c-c51f-482b-9912-f07c2604272d",
-            description: "transport for small thing",
-            status: "Reject",
-            weight: 4.0,
-            width: 5.0,
-            height: 10.0,
-        },
-        {
-            id: "703ba816-5a68-4819-9728-81711f7ae348",
-            description: "electronic stuff",
-            status: "Approved",
-            weight: 5.0,
-            width: 7.0,
-            height: 17.0,
-        },
-        {
-            id: "c23be74e-78f8-4a56-b56a-e14d3cf5304b",
-            description: "furniture",
-            status: "Pending",
-            weight: 20.0,
-            width: 30.0,
-            height: 40.0,
-        },
-    ];
-
-    // useEffect(() => {
-    //     if (localStorage.getItem("sender")) {
-    //         getMyAwb().then((response) => {
-    //             setMyAwb(response.data || []);
-    //             localStorage.setItem("myAwb", JSON.stringify(response.data));
-    //         }).catch((e) => {
-    //             console.log(e);
-    //         })
-    //     } else if (localStorage.getItem("airlineEmployee")) {
-    //         getAllAwb().then((data) => {
-    //             setAwbList(data || []);
-    //             localStorage.setItem("AllAwb", JSON.stringify(data));
-    //         }).catch((e) => {
-    //             console.log(e);
-    //         })
-    //     } else if (localStorage.getItem("customsEmployee")) {
-    //         getAllCargo().then((data) => {
-    //             setCargoList(data || []);
-    //             localStorage.setItem("AllCargo", JSON.stringify(data));
-    //         }).catch((e) => {
-    //             console.log(e);
-    //         })
-    //     }
-    // }, []);
-
     useEffect(() => {
         if (localStorage.getItem("sender")) {
             getMyAwb().then((response) => {
@@ -214,8 +93,7 @@ export default function Home() {
                                         cursor: "pointer",
                                         borderRadius: "3px",
                                     }}
-                                    onClick={() => navigate(`/awb/${awb.id}`)}
-                                >
+                                    onClick={() => openModal(awb)}>
                                     보기
                                 </button>
                             </td>
@@ -223,6 +101,13 @@ export default function Home() {
                     ))}
                     </tbody>
                 </table>
+                {isAWBModalOpen && (
+                    <MyAwbModal
+                        isOpen={isAWBModalOpen}
+                        onClose={() => setIsAWBModalOpen(false)}
+                        awbData={selectedAwb}
+                    />
+                )}
             </div>
         );
     }
@@ -348,7 +233,7 @@ export default function Home() {
                                                 cursor: "pointer",
                                                 transition: "background-color 0.3s",
                                             }}
-                                            onClick={() => alert(`AWB ID: ${item.id}`)}
+                                            onClick={() => navigate(`/airline-schedule`, {state: {item}})}
                                             onMouseOver={(e) =>
                                                 (e.target.style.backgroundColor = "#0056b3")
                                             }

@@ -22,7 +22,7 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
                 localStorage.clear();
                 const responseData = response.data;
                 localStorage.setItem("sender", JSON.stringify(responseData));
-                navigate("/senderAWB-write")
+                navigate("/home")
                 alert(`로그인 성공`);
             }).catch((e) => {
                 alert('로그인 실패');
@@ -45,7 +45,7 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
                 //     role: responseData.role,
                 // };
                 localStorage.setItem("airlineEmployee", JSON.stringify(response));
-                navigate("/senderAWB-write"); // 수정필요
+                navigate("/home"); // 수정필요
                 alert('로그인 성공');
 
             }).catch((e) => {
@@ -57,7 +57,7 @@ export default function LoginForm({ role, onSelectRole, onSignup }) {
                 localStorage.clear();
                 // const responseData = response.data;
                 localStorage.setItem("customsEmployee", JSON.stringify(response));
-                navigate("/senderAWB-write"); // 수정필요
+                navigate("/home"); // 수정필요
                 alert('로그인 성공');
             }).catch((e) => {
                 alert('로그인 실패');

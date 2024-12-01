@@ -12,7 +12,6 @@ export default function Router() {
             <Route path='/senderAWB-write' element={<SenderAWBWrite />} />
             <Route path="/detail" element={<DetailView />} />
             <Route path="/approval" element={<ApprovalView />} />
-            {/*<Route path="/approval/:id" element={<ApprovalView />} />*/}
             <Route path="/airline-schedule" element={<AWBAndSchedule/>} />
         </Routes>
     );

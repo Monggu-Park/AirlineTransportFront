@@ -1,53 +1,43 @@
 import React, { useEffect, useState } from "react";
-import * as Styled from "./style"
+import * as Styled from "./style";
+import {registerSchedule} from "@/apis/airline/index.js";
+import {useNavigate} from "react-router-dom";
 
-export default function ScheduleManager() {
+export default function ScheduleManager({selectedAwbId}) {
     const [schedules, setSchedules] = useState([]);
-    const [airlineOptions, setAirlineOptions] = useState([]);
+    const [airportList, setAirportList] = useState([]);
+    const [planeList, setPlaneList] = useState([]);
     const [form, setForm] = useState({
-        airline: "",
-        from: "",
-        to: "",
-        dateTime: "",
-        price: "",
+        planeId: "",
+        departureAirportId: "",
+        arrivalAirportId: "",
+        departureTime: "",
+        arrivalTime: "",
+        airlineEmployeesId: "",
     });
-
-    // 공항 목데이터
-    const mockAirports = [
-        {
-            id: "06a5607b-447c-43bf-a0b4-69b60e96efd0",
-            name: "Incheon International Airport",
-            region: "Incheon",
-        },
-        {
-            id: "20f2a75d-5cf5-4e1e-987b-c0a7d19a6d8b",
-            name: "Gimpo International Airport",
-            region: "Seoul",
-        },
-        {
-            id: "fd45a67c-a6e5-4c34-b5f1-b12e5c51f6bc",
-            name: "Los Angeles International Airport",
-            region: "Los Angeles",
-        },
-    ];
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchAirlines = async () => {
-            const mockResponse = [
-                { id: "1eb3cbbe-ebcc-4cad-9653-8c0d10d16e7d", name: "Asiana" },
-                { id: "2bc4dbdd-ec44-4fac-9653-6c2d10d13f7e", name: "Korean Air" },
-            ];
-            setAirlineOptions(mockResponse);
-        };
+        const storedAirports = localStorage.getItem("AllAirport");
+        const storedPlanes = localStorage.getItem("AllPlane");
 
-        // fetchAirlines 호출 후 반환값을 처리
-        fetchAirlines()
-            .then(() => {
-                console.log("Airline options loaded successfully.");
-            })
-            .catch((err) => {
-                console.error("Error loading airline options:", err);
-            });
+        if (storedAirports) {
+            try {
+                setAirportList(JSON.parse(storedAirports));
+            } catch (error) {
+                console.error("Error parsing AllAirport data:", error);
+                setAirportList([]);
+            }
+        }
+
+        if (storedPlanes) {
+            try {
+                setPlaneList(JSON.parse(storedPlanes));
+            } catch (error) {
+                console.error("Error parsing AllPlane data:", error);
+                setPlaneList([]);
+            }
+        }
     }, []);
 
     const handleChange = (e) => {
@@ -59,12 +49,50 @@ export default function ScheduleManager() {
     };
 
     const handleAddSchedule = () => {
-        if (!form.airline || !form.from || !form.to || !form.dateTime || !form.price) {
+        const airlineEmployee = localStorage.getItem("airlineEmployee");
+        const parsed = JSON.parse(airlineEmployee);
+        console.log(parsed.id);
+        const {
+            planeId,
+            departureAirportId,
+            arrivalAirportId,
+            departureTime,
+            arrivalTime,
+        } = form;
+        if (
+            !planeId ||
+            !departureAirportId ||
+            !arrivalAirportId ||
+            !departureTime ||
+            !arrivalTime
+        ) {
             alert("모든 필드를 입력해주세요.");
             return;
         }
-        setSchedules((prev) => [...prev, form]);
-        setForm({ airline: "", from: "", to: "", dateTime: "", price: "" });
+        const scheduleData = {
+            planeId,
+            departureAirportId,
+            arrivalAirportId,
+            departureTime: new Date(departureTime).toISOString(),
+            arrivalTime: new Date(arrivalTime).toISOString(),
+            airlineEmployeesId: parsed.id,
+            awbId: selectedAwbId
+        };
+        console.log("서버로 보낼 데이터:", scheduleData);
+        setSchedules((prev) => [...prev, scheduleData]);
+
+        setForm({
+            planeId: "",
+            departureAirportId: "",
+            arrivalAirportId: "",
+            departureTime: "",
+            arrivalTime: "",
+        });
+
+
+        registerSchedule(scheduleData).then(() => {
+            navigate("/home")
+        }).catch((e) => console.error(e));
     };
 
     return (
@@ -72,53 +100,52 @@ export default function ScheduleManager() {
             <Styled.Title>스케줄 추가</Styled.Title>
             <Styled.FormGroup>
                 <Styled.Select
-                    name="airline"
-                    value={form.airline}
+                    name="planeId"
+                    value={form.planeId}
                     onChange={handleChange}
                 >
-                    <option value="">항공사를 선택하세요</option>
-                    {airlineOptions.map((airline) => (
-                        <option key={airline.id} value={airline.name}>
-                            {airline.name}
+                    <option value="">항공기 선택</option>
+                    {planeList.map((plane) => (
+                        <option key={plane.id} value={plane.id}>
+                            {plane.id}
                         </option>
                     ))}
                 </Styled.Select>
                 <Styled.Select
-                    name="from"
-                    value={form.from}
+                    name="departureAirportId"
+                    value={form.departureAirportId}
                     onChange={handleChange}
                 >
                     <option value="">출발 공항 선택</option>
-                    {mockAirports.map((airport) => (
-                        <option key={airport.id} value={airport.name}>
+                    {airportList.map((airport) => (
+                        <option key={airport.id} value={airport.id}>
                             {airport.name} ({airport.region})
                         </option>
                     ))}
                 </Styled.Select>
                 <Styled.Select
-                    name="to"
-                    value={form.to}
+                    name="arrivalAirportId"
+                    value={form.arrivalAirportId}
                     onChange={handleChange}
                 >
                     <option value="">도착 공항 선택</option>
-                    {mockAirports.map((airport) => (
-                        <option key={airport.id} value={airport.name}>
+                    {airportList.map((airport) => (
+                        <option key={airport.id} value={airport.id}>
                             {airport.name} ({airport.region})
                         </option>
                     ))}
                 </Styled.Select>
                 <Styled.Input
                     type="datetime-local"
-                    name="dateTime"
-                    value={form.dateTime}
+                    name="departureTime"
+                    value={form.departureTime}
                     onChange={handleChange}
                 />
                 <Styled.Input
-                    type="text"
-                    name="price"
-                    value={form.price}
+                    type="datetime-local"
+                    name="arrivalTime"
+                    value={form.arrivalTime}
                     onChange={handleChange}
-                    placeholder="가격 (e.g., $300)"
                 />
                 <Styled.Button onClick={handleAddSchedule}>스케줄 추가</Styled.Button>
             </Styled.FormGroup>
@@ -127,21 +154,21 @@ export default function ScheduleManager() {
                 <Styled.Table>
                     <Styled.TableHead>
                         <Styled.TableRow>
-                            <Styled.TableHeader>항공사</Styled.TableHeader>
-                            <Styled.TableHeader>출발</Styled.TableHeader>
-                            <Styled.TableHeader>도착</Styled.TableHeader>
-                            <Styled.TableHeader>시간</Styled.TableHeader>
-                            <Styled.TableHeader>가격</Styled.TableHeader>
+                            <Styled.TableHeader>항공기</Styled.TableHeader>
+                            <Styled.TableHeader>출발 공항</Styled.TableHeader>
+                            <Styled.TableHeader>도착 공항</Styled.TableHeader>
+                            <Styled.TableHeader>출발 시간</Styled.TableHeader>
+                            <Styled.TableHeader>도착 시간</Styled.TableHeader>
                         </Styled.TableRow>
                     </Styled.TableHead>
                     <tbody>
                     {schedules.map((schedule, index) => (
                         <Styled.TableRow key={index}>
-                            <Styled.TableCell>{schedule.airline}</Styled.TableCell>
-                            <Styled.TableCell>{schedule.from}</Styled.TableCell>
-                            <Styled.TableCell>{schedule.to}</Styled.TableCell>
-                            <Styled.TableCell>{schedule.dateTime}</Styled.TableCell>
-                            <Styled.TableCell>{schedule.price}</Styled.TableCell>
+                            <Styled.TableCell>{schedule.planeId}</Styled.TableCell>
+                            <Styled.TableCell>{schedule.departureAirportId}</Styled.TableCell>
+                            <Styled.TableCell>{schedule.arrivalAirportId}</Styled.TableCell>
+                            <Styled.TableCell>{schedule.departureTime}</Styled.TableCell>
+                            <Styled.TableCell>{schedule.arrivalTime}</Styled.TableCell>
                         </Styled.TableRow>
                     ))}
                     </tbody>

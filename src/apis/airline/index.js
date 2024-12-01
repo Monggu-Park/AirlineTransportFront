@@ -26,9 +26,7 @@ export const getAllAirport = async () => {
 
 export const registerSchedule = async (data) => {
     const { awbId, ...bodyData } = data;
-    const response = await publicInstance.post("/schedule/register", bodyData, {
-        params: {awbId: awbId}
-    });
+    const response = await publicInstance.post(`/schedule/register?awbId=${awbId}`, bodyData);
     return response.data;
 }
 
