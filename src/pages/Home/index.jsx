@@ -342,8 +342,6 @@ export default function Home() {
             <Styled.PageContainer>
                 <Styled.ContentContainer>
                     {renderContent()}
-                    {/*<MyAwbView myAwb={mockMyAwb} navigate={navigate} />*/}
-                    {/*<DetailView/>*/}
                 </Styled.ContentContainer>
             </Styled.PageContainer>
         </div>
