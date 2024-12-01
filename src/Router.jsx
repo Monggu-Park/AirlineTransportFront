@@ -11,7 +11,7 @@ export default function Router() {
             <Route path={'/home'} element={<Home />} />
             <Route path='/senderAWB-write' element={<SenderAWBWrite />} />
             <Route path="/detail/:id" element={<DetailView />} />
-            <Route path="/approval/:id" element={<ApprovalView />} />
+            <Route path="/approval" element={<ApprovalView />} />
         </Routes>
     );
 }
