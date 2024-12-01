@@ -6,12 +6,10 @@ export const getAllCargo = async () => {
 }
 
 export const changeStatus = async (data) => {
-    const response = await publicInstance.post("/cargo/changeStatus", {
-        params: {
-            cargoId: data.cargoId,
-            cargoStatus: data.cargoStatus,
-        }
-    });
+    const response = await publicInstance.post(
+        `/cargo/changeStatus?cargoId=${data.cargoId}&cargoStatus=${data.cargoStatus}`,
+        {}
+    );
     return response.data;
 }
 

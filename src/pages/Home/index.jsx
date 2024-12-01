@@ -2,9 +2,9 @@ import * as Styled from "./style.js"
 import Sidebar from "@/components/Sidebar/index.jsx";
 import {useEffect, useState} from "react";
 import {getMyAwb} from "@/apis/sender/index.js";
-import {data, useNavigate, useParams} from "react-router-dom";
+import {data, useLocation, useNavigate, useParams} from "react-router-dom";
 import {getAllAwb} from "@/apis/airline/index.js";
-import {getAllCargo} from "@/apis/customs/index.js";
+import {changeStatus, getAllCargo} from "@/apis/customs/index.js";
 import { Link } from 'react-router-dom';
 import MyAwbModal from "@/components/Modal/MyAWBModal/index.jsx";
 
@@ -160,11 +160,10 @@ export default function Home() {
                     <tbody>
                     {myAwb.map((awb) => (
                         <tr key={awb.id}>
-                            <td style={{border: "1px solid #ccc", padding: "10px"}}>{awb.id}</td>
-                            <td style={{border: "1px solid #ccc", padding: "10px"}}>{awb.cargo.status || "Unknown"}</td>
-                            {/*<td style={{border: "1px solid #ccc", padding: "10px"}}>{awb.isValid || "No Status"}</td>*/}
-                            <td style={{border: "1px solid #ccc", padding: "10px"}}>{awb.schedule || "No Status"}</td>
-                            <td style={{border: "1px solid #ccc", padding: "10px"}}>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{awb.id}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{awb.cargo.status || "Unknown"}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{awb.isValid.toString() || "No Status"}</td>
+                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>
                                 <button
                                     style={{
                                         padding: "5px 10px",
@@ -287,21 +286,71 @@ export default function Home() {
 
     const CargoView = ({ cargoList }) => {
         return (
-            <div>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <div style={{padding: "20px", backgroundColor: "#f9f9f9"}}>
+                <table
+                    style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                        borderRadius: "10px",
+                        overflow: "hidden",
+                    }}
+                >
                     <thead>
-                    <tr>
-                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>ID</th>
-                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Description</th>
-                        <th style={{ border: "1px solid #ccc", padding: "10px", textAlign: "left" }}>Status</th>
+                    <tr style={{backgroundColor: "#4CAF50", color: "#fff", textAlign: "left"}}>
+                        <th style={{padding: "15px", fontWeight: "bold"}}>ID</th>
+                        <th style={{padding: "15px", fontWeight: "bold"}}>Description</th>
+                        <th style={{padding: "15px", fontWeight: "bold"}}>Status</th>
+                        <th style={{padding: "15px", fontWeight: "bold"}}>Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {cargoList.map((cargo) => (
-                        <tr key={cargo.id}>
-                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{cargo.id}</td>
-                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{cargo.description}</td>
-                            <td style={{ border: "1px solid #ccc", padding: "10px" }}>{cargo.status}</td>
+                    {cargoList.map((cargo, index) => (
+                        <tr
+                            key={cargo.id}
+                            style={{
+                                backgroundColor: index % 2 === 0 ? "#f2f2f2" : "#fff",
+                                borderBottom: "1px solid #ddd",
+                            }}
+                        >
+                            <td style={{padding: "15px", color: "#333"}}>{cargo.id}</td>
+                            <td style={{padding: "15px", color: "#333"}}>{cargo.description}</td>
+                            <td
+                                style={{
+                                    padding: "15px",
+                                    fontWeight: "bold",
+                                    color:
+                                        cargo.status === "Delivered"
+                                            ? "#28a745"
+                                            : cargo.status === "Process"
+                                                ? "#ffc107"
+                                                : "#dc3545",
+                                }}
+                            >
+                                {cargo.status}
+                            </td>
+                            <td style={{padding: "15px"}}>
+                                <button
+                                    style={{
+                                        padding: "10px 20px",
+                                        backgroundColor: "#007bff",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                        transition: "background-color 0.3s",
+                                    }}
+                                    onClick={() => navigate(`/approval`, {state: {cargo}})}
+                                    onMouseOver={(e) =>
+                                        (e.target.style.backgroundColor = "#0056b3")
+                                    }
+                                    onMouseOut={(e) =>
+                                        (e.target.style.backgroundColor = "#007bff")
+                                    }
+                                >
+                                    보기
+                                </button>
+                            </td>
                         </tr>
                     ))}
                     </tbody>
@@ -312,7 +361,7 @@ export default function Home() {
 
     const renderContent = () => {
         if (localStorage.getItem("sender")) {
-            return <MyAwbView myAwb={myAwb} navigate={navigate} />;
+            return <MyAwbView myAwb={myAwb} navigate={navigate}/>;
         } else if (localStorage.getItem("airlineEmployee")) {
             return (
                 <>
@@ -327,7 +376,7 @@ export default function Home() {
                 <>
                     <h1 style={{
                         margin: '10px 0',
-                    }}>All Cargo</h1>
+                    }}>All Cargos</h1>
                     <CargoView cargoList={cargoList}/>
                 </>
             );
@@ -349,7 +398,7 @@ export default function Home() {
 }
 
 const DetailView = () => {
-    const { id } = useParams(); // URL에서 ID를 가져옴
+    const {id} = useParams(); // URL에서 ID를 가져옴
     const [date, setDate] = useState('');
     const [formData, setFormData] = useState({
         name: 'Example Name',
@@ -435,21 +484,44 @@ const DetailView = () => {
 };
 
 const ApprovalView = () => {
-    const {id} = useParams(); // URL에서 ID를 가져옴
-    const [approvalStatus, setApprovalStatus] = useState(null); // 승인 상태를 관리
+    const location = useLocation();
+    const {cargo} = location.state || {};
+    const [approvalStatus, setApprovalStatus] = useState(""); // 승인 상태를 관리
     const navigate = useNavigate();
+    const {id} = useParams(); // URL에서 ID를 가져옴
 
     // 승인 버튼 클릭 핸들러
-    const handleApprove = () => {
-        setApprovalStatus('승인');
-        console.log(`ID: ${id} is approved`); // 승인 시 처리할 로직
-        navigate("/airline-schedule");
+    const handleApprove = (e) => {
+        e.preventDefault();
+        setApprovalStatus(() => {
+            const newState = "Approved";
+            const data = {
+                cargoId: cargo.id,
+                cargoStatus: newState
+            };
+            console.log(data);
+            changeStatus(data).then(() => {
+                navigate("/airline-schedule");
+            }).catch((e) => {console.error(e);});
+            return newState;
+        });
     };
 
     // 거절 버튼 클릭 핸들러
-    const handleReject = () => {
-        setApprovalStatus('거절');
-        console.log(`ID: ${id} is rejected`); // 거절 시 처리할 로직
+    const handleReject = (e) => {
+        e.preventDefault();
+        setApprovalStatus(() => {
+            const newState = "Reject";
+            const data = {
+                cargoId: cargo.id,
+                cargoStatus: newState
+            };
+            console.log(data);
+            changeStatus(data).then(() => {
+                navigate('/home');
+            }).catch((e) => {console.error(e);});
+            return newState;
+        });// 거절 시 처리할 로직
     };
 
     return (
@@ -457,46 +529,48 @@ const ApprovalView = () => {
             <Sidebar/>
             <Styled.PageContainer>
                 <Styled.ContentContainer>
-                    <div style={{padding: '20px'}}>
-                        <h2>Approval View for ID: {id}</h2>
+                    <div style={{padding: "20px"}}>
+                        <h2>Approval View for ID: {cargo.id}</h2>
 
-                        {/* ID, Name, Text 세로로 나열 */}
-                        <div style={{marginBottom: '20px'}}>
-                            <div>
-                                <strong>ID:</strong> {id}
-                            </div>
-                            <div>
-                                <strong>Name:</strong> Example Name
-                            </div>
-                            <div>
-                                <strong>Text:</strong> Example Text for approval process
-                            </div>
-                        </div>
+                        {/* 테이블 - 세로 정렬 */}
+                        <Styled.Table>
+                            <tbody>
+                            <Styled.TableRow>
+                                <Styled.TableHeader>Description</Styled.TableHeader>
+                                <Styled.TableCell>{cargo.description}</Styled.TableCell>
+                            </Styled.TableRow>
+                            <Styled.TableRow>
+                                <Styled.TableHeader>Weight</Styled.TableHeader>
+                                <Styled.TableCell>{cargo.weight} KG</Styled.TableCell>
+                            </Styled.TableRow>
+                            <Styled.TableRow>
+                                <Styled.TableHeader>Width</Styled.TableHeader>
+                                <Styled.TableCell>{cargo.width} CM</Styled.TableCell>
+                            </Styled.TableRow>
+                            <Styled.TableRow>
+                                <Styled.TableHeader>Height</Styled.TableHeader>
+                                <Styled.TableCell>{cargo.height} CM</Styled.TableCell>
+                            </Styled.TableRow>
+                            <Styled.TableRow>
+                                <Styled.TableHeader>Status</Styled.TableHeader>
+                                <Styled.TableCell>
+                                    <Styled.StatusBadge status={cargo.status}>{cargo.status}</Styled.StatusBadge>
+                                </Styled.TableCell>
+                            </Styled.TableRow>
+                            </tbody>
+                        </Styled.Table>
 
-                        {/* 승인/거절 버튼 */}
-                        <div style={{marginTop: '20px'}}>
-                            <button onClick={handleApprove} style={{
-                                marginRight: '10px',
-                                padding: '10px 20px',
-                                backgroundColor: 'green',
-                                color: 'white',
-                                border: 'none'
-                            }}>
+                        {/* 버튼 - 승인/거절 */}
+                        <div style={{marginTop: "20px", textAlign: "right"}}>
+                            <Styled.ActionButton approve onClick={handleApprove}>
                                 승인
-                            </button>
-                            <button onClick={handleReject} style={{
-                                padding: '10px 20px',
-                                backgroundColor: 'red',
-                                color: 'white',
-                                border: 'none'
-                            }}>
-                                거절
-                            </button>
+                            </Styled.ActionButton>
+                            <Styled.ActionButton onClick={handleReject}>거절</Styled.ActionButton>
                         </div>
 
                         {/* 승인 상태 */}
                         {approvalStatus && (
-                            <div style={{marginTop: '20px', fontWeight: 'bold'}}>
+                            <div style={{marginTop: "20px", fontWeight: "bold"}}>
                                 {`상태: ${approvalStatus}`}
                             </div>
                         )}
@@ -504,6 +578,7 @@ const ApprovalView = () => {
                 </Styled.ContentContainer>
             </Styled.PageContainer>
         </div>
+
     );
 };
 
