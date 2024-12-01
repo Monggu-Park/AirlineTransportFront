@@ -10,7 +10,7 @@ export default function Router() {
             <Route path='/' element={<Login />} />
             <Route path={'/home'} element={<Home />} />
             <Route path='/senderAWB-write' element={<SenderAWBWrite />} />
-            <Route path="/detail/:id" element={<DetailView />} />
+            <Route path="/detail" element={<DetailView />} />
             <Route path="/approval" element={<ApprovalView />} />
             {/*<Route path="/approval/:id" element={<ApprovalView />} />*/}
             <Route path="/airline-schedule" element={<AWBAndSchedule/>} />
