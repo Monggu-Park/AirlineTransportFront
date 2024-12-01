@@ -11,9 +11,9 @@ export const getAllAirline = async () => {
 }
 
 export const getPlane = async (data) => {
-    const response = await publicInstance.get("/airline/plane", {
+    const response = await publicInstance.get("/airline/planes", {
         params: {
-            airlineId: data.airlineId,
+            airlineId: data.airline.id,
         }
     });
     return response.data;

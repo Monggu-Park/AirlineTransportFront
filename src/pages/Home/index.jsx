@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar/index.jsx";
 import {useEffect, useState} from "react";
 import {getMyAwb} from "@/apis/sender/index.js";
 import {data, useLocation, useNavigate, useParams} from "react-router-dom";
-import {getAllAwb} from "@/apis/airline/index.js";
+import {getAllAirport, getAllAwb, getPlane} from "@/apis/airline/index.js";
 import {changeStatus, getAllCargo} from "@/apis/customs/index.js";
 import { Link } from 'react-router-dom';
 
@@ -11,6 +11,8 @@ export default function Home() {
     const [myAwb, setMyAwb] = useState([]);
     const [AwbList, setAwbList] = useState([]);
     const [cargoList, setCargoList] = useState([]);
+    const [airportList, setAirportList] = useState([]);
+    const [planeList, setPlaneList] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,12 +24,27 @@ export default function Home() {
                 console.log(e);
             })
         } else if (localStorage.getItem("airlineEmployee")) {
+            const airlineData = localStorage.getItem("airlineEmployee");
+            const parsedData = JSON.parse(airlineData);
             getAllAwb().then((data) => {
                 setAwbList(data || []);
                 localStorage.setItem("AllAwb", JSON.stringify(data));
+                getAllAirport().then((res) => {
+                    setAirportList(res || []);
+                    localStorage.setItem("AllAirport", JSON.stringify(res));
+                }).catch((e) => {
+                    console.log(e);
+                })
+                getPlane(parsedData).then((res) => {
+                    setPlaneList(res || []);
+                    localStorage.setItem("AllPlane", JSON.stringify(res));
+                }).catch((e) => {
+                    console.log(e);
+                })
             }).catch((e) => {
                 console.log(e);
             })
+
         } else if (localStorage.getItem("customsEmployee")) {
             getAllCargo().then((data) => {
                 setCargoList(data || []);
@@ -115,63 +132,114 @@ export default function Home() {
         const tabs = [
             {
                 id: 0,
-                label: 'Tab 1',
-                items: AwbList.map((awb) => ({
-                    id: awb.id,
-                    name: awb.sender.name || "Unknown",
-                    text: awb.isValid.toString() || "No status available",
-                })),
+                label: '전체',
+                items: AwbList,
             },
             {
                 id: 1,
-                label: 'Tab 2',
-                items: [
-                    { id: 4, name: 'Diana', text: 'Welcome to Tab 2!' },
-                    { id: 4, name: 'Diana', text: 'Welcome to Tab 2!' },
-                    { id: 5, name: 'Eve', text: 'This is another example.' },
-                ],
+                label: '미처리',
+                items: AwbList.filter(awb => awb.isValid === false),
             },
             {
                 id: 2,
-                label: 'Tab 3',
-                items: [
-                    { id: 4, name: 'Diana', text: 'Welcome to Tab 2!' },
-                    { id: 6, name: 'Frank', text: 'Tab 3 has more data!' },
-                    { id: 7, name: 'Grace', text: 'Let\'s add more content!' },
-                    { id: 8, name: 'Hank', text: 'React is fun!' },
-                    { id: 9, name: 'Ivy', text: 'Enjoy coding!' },
-                ],
+                label: '처리',
+                items: AwbList.filter(awb => awb.isValid === true),
             },
         ];
 
         return (
             <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-                <div style={{ display: "flex", cursor: "pointer", borderBottom: "2px solid #ccc", height: "50px" }}>
-                    {tabs.map((tab) => (
-                        <div
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
+                <div style={{ display: "flex", flexDirection: "column", height: "100vh", backgroundColor: "#f9f9f9" }}>
+                    {/* 탭 헤더 */}
+                    <div style={{ display: "flex", cursor: "pointer", borderBottom: "2px solid #ccc", height: "50px" }}>
+                        {tabs.map((tab) => (
+                            <div
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                style={{
+                                    flex: 1,
+                                    padding: "10px",
+                                    textAlign: "center",
+                                    backgroundColor: activeTab === tab.id ? "#4CAF50" : "#f0f0f0",
+                                    color: activeTab === tab.id ? "#fff" : "#000",
+                                    borderBottom: activeTab === tab.id ? "2px solid #4CAF50" : "2px solid transparent",
+                                }}
+                            >
+                                {tab.label}
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{flex: 1, overflowY: "auto", padding: "20px"}}>
+                        <table
                             style={{
-                                flex: 1,
-                                padding: "10px",
-                                textAlign: "center",
-                                backgroundColor: activeTab === tab.id ? "#007bff" : "#f0f0f0",
-                                color: activeTab === tab.id ? "#fff" : "#000",
-                                borderBottom: activeTab === tab.id ? "2px solid #007bff" : "2px solid transparent",
+                                width: "100%",
+                                borderCollapse: "collapse",
+                                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                                borderRadius: "10px",
+                                overflow: "hidden",
                             }}
                         >
-                            {tab.label}
-                        </div>
-                    ))}
-                </div>
-                <div style={{ flex: 1, overflowY: "auto", padding: "20px", borderTop: "none" }}>
-                    <TabContent items={tabs[activeTab].items} />
+                            <thead>
+                            <tr style={{backgroundColor: "#4CAF50", color: "#fff", textAlign: "left"}}>
+                                <th style={{padding: "15px", fontWeight: "bold"}}>AWB ID</th>
+                                <th style={{padding: "15px", fontWeight: "bold"}}>Date</th>
+                                <th style={{padding: "15px", fontWeight: "bold"}}>Status</th>
+                                <th style={{padding: "15px", fontWeight: "bold"}}>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {tabs[activeTab].items.map((item, index) => (
+                                <tr
+                                    key={item.id}
+                                    style={{
+                                        backgroundColor: index % 2 === 0 ? "#f2f2f2" : "#fff",
+                                        borderBottom: "1px solid #ddd",
+                                    }}
+                                >
+                                    <td style={{padding: "15px", color: "#333"}}>{item.id}</td>
+                                    <td style={{padding: "15px", color: "#333"}}>{new Date(item.createdAt).toLocaleDateString()}</td>
+                                    <td
+                                        style={{
+                                            padding: "15px",
+                                            fontWeight: "bold",
+                                            color: item.isValid ? "#28a745" : "#dc3545",
+                                        }}
+                                    >
+                                        {item.isValid ? "Approved" : "Waiting"}
+                                    </td>
+                                    <td style={{padding: "15px"}}>
+                                        <button
+                                            style={{
+                                                padding: "10px 20px",
+                                                backgroundColor: "#007bff",
+                                                color: "#fff",
+                                                border: "none",
+                                                borderRadius: "5px",
+                                                cursor: "pointer",
+                                                transition: "background-color 0.3s",
+                                            }}
+                                            onClick={() => alert(`AWB ID: ${item.id}`)}
+                                            onMouseOver={(e) =>
+                                                (e.target.style.backgroundColor = "#0056b3")
+                                            }
+                                            onMouseOut={(e) =>
+                                                (e.target.style.backgroundColor = "#007bff")
+                                            }
+                                        >
+                                            보기
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         );
     };
 
-    const CargoView = ({ cargoList }) => {
+    const CargoView = ({cargoList}) => {
         return (
             <div style={{padding: "20px", backgroundColor: "#f9f9f9"}}>
                 <table
@@ -285,7 +353,8 @@ export default function Home() {
 }
 
 const DetailView = () => {
-    const {id} = useParams(); // URL에서 ID를 가져옴
+    const location = useLocation();
+    const {awb} = location.state || {};
     const [date, setDate] = useState('');
     const [formData, setFormData] = useState({
         name: 'Example Name',
